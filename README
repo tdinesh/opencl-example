@@ -1,0 +1,23 @@
+OpenCL Example.
+
+Simple project to demonstrate the usage of the OpenCL 1.2 C++ API in C++
+programs. Simply do the following :
+
+$ git clone https://github.com/ntimeu/opencl-example.git
+$ cd opencl-example
+$ cd build
+$ cmake ..
+$ make
+$ ./src/example
+
+
+It has been tested on :
+* ArchLinux
+* Intel HD5200 Iris Pro
+* Intel Beignet (for Intel GPU OpenCL support)
+
+The page https://wiki.archlinux.org/index.php/GPGPU gives you hints (Archlinux
+only) on how to install OpenCL on your machine.
+
+All the code is released under the ISC license, for more information please look
+at the LICENSE file.
