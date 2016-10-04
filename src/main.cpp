@@ -8,6 +8,8 @@
 #define __CL_ENABLE_EXCEPTIONS
 #include <CL/cl.hpp>
 
+#include <boost/program_options.hpp>
+
 #define N 512
 
 #define STRINGIFY(...) #__VA_ARGS__
@@ -23,8 +25,34 @@ __kernel void VecAdd(__global float* A,
 }
 );
 
-int main(void)
+int main(int argc, char **argv)
 {
+    std::srand(std::time(0));
+    namespace po = boost::program_options;
+    unsigned int number;
+
+    po::options_description desc("Allowed options");
+    desc.add_options()
+        ("help", "produce help message")
+        ("version", "Show version number")
+        ("number,n",
+         po::value<unsigned int>(&number)->default_value(N),
+         "number of elements to treat");
+
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
+
+    if (vm.count("help")) {
+        std::cout << desc << '\n';
+        return 0;
+    }
+
+    if (vm.count("version")) {
+        std::cout << "Version 1.0.0\n";
+        return 0;
+    }
+
     std::vector<cl::Platform> platforms;
     std::vector<cl::Device> devices;
 
@@ -33,10 +61,10 @@ int main(void)
     std::unique_ptr<cl::Program> program;
     std::unique_ptr<cl::Kernel> kernel;
     std::unique_ptr<cl::Buffer> d_a, d_b, d_c;
-
-    std::vector<float> a(N);
-    std::vector<float> b(N);
-    std::vector<float> c(N);
+    
+    std::vector<float> a(number);
+    std::vector<float> b(number);
+    std::vector<float> c(number);
 
     std::generate(a.begin(), a.end(), rand);
     std::generate(b.begin(), b.end(), rand);
@@ -69,28 +97,29 @@ int main(void)
         d_a.reset(new cl::Buffer(
                 *context,
                 CL_MEM_READ_WRITE,
-                N * sizeof(float)));
+                number * sizeof(float)));
 
         d_b.reset(new cl::Buffer(
                 *context,
                 CL_MEM_READ_WRITE,
-                N * sizeof(float)));
+                number * sizeof(float)));
 
         d_c.reset(new cl::Buffer(
                 *context,
                 CL_MEM_READ_WRITE,
-                N * sizeof(float)));
+                number * sizeof(float)));
 
         queue->enqueueWriteBuffer(
                 *d_a,
                 true,
                 0,
-                N * sizeof(float),
+                number * sizeof(float),
                 a.data());
         queue->enqueueWriteBuffer(
                 *d_b,
                 true,
-                0, N * sizeof(float),
+                0,
+                number * sizeof(float),
                 b.data());
 
         kernel->setArg(0, *d_a);
@@ -100,7 +129,7 @@ int main(void)
         queue->enqueueNDRangeKernel(
                 *kernel,
                 cl::NullRange,
-                {N},
+                {number},
                 {1});
 
         queue->finish();
@@ -109,7 +138,7 @@ int main(void)
                 *d_c,
                 true,
                 0,
-                N * sizeof(float),
+                number * sizeof(float),
                 c.data());
 
         for (unsigned int i = 0; i < c.size(); ++i) {
