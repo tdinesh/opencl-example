@@ -37,7 +37,8 @@ int main(int argc, char **argv)
         ("version", "Show version number")
         ("number,n",
          po::value<unsigned int>(&number)->default_value(N),
-         "number of elements to treat");
+         "number of elements to treat")
+        ("show,s", "Show list of computed elements");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -132,8 +133,6 @@ int main(int argc, char **argv)
                 {number},
                 {1});
 
-        queue->finish();
-
         queue->enqueueReadBuffer(
                 *d_c,
                 true,
@@ -141,17 +140,21 @@ int main(int argc, char **argv)
                 number * sizeof(float),
                 c.data());
 
+        queue->finish();
+
         for (unsigned int i = 0; i < c.size(); ++i) {
             if (c[i] != a[i] + b[i]) {
-                std::cerr << c[i] << " != " << a[i] << " + " << b[i] << "\n";
+                std::cerr << c[i] << " != " << a[i] << " + " << b[i] << '\n';
                 ::exit(-1);
             }
 
-            std::cout << c[i] << " = " << a[i] << " + " << b[i] << "\n";
+            if (vm.count("show"))
+                std::cout << c[i] << " = " << a[i] << " + " << b[i] << '\n';
         }
     } catch (cl::Error& e) {
         std::cerr << "OpenCL C++ API error : " << e.what() << "\n";
         ::exit(-1);
     }
+
     return 0;
 }
