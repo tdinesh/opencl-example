@@ -1,0 +1,4 @@
+include_rules
+
+: src/main.cpp  |> $(CXX) $(CFLAGS) -flto -c -o %o %f   |> src/main.o
+: src/main.o    |> $(CXX) -flto -o %o %f $(LDFLAGS)     |> example
