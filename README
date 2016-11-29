@@ -10,14 +10,6 @@ $ cmake ..
 $ make
 $ ./src/example
 
-for an in-tree build you can also use tup :
-
-$ git clone https://github.com/ntimeu/opencl-example.git
-$ cd opencl-example
-$ tup init
-$ tup upd
-$ ./example
-
 It has been tested on :
 * ArchLinux
 * Intel HD5200 Iris Pro
