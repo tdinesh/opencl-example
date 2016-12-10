@@ -1,6 +1,5 @@
 set(sources
-    main.cpp
-    )
+    example.cpp)
 
 add_executable(example ${sources})
 
