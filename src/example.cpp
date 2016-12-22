@@ -62,7 +62,7 @@ int main(int argc, char **argv)
     std::unique_ptr<cl::Program> program;
     std::unique_ptr<cl::Kernel> kernel;
     std::unique_ptr<cl::Buffer> d_a, d_b, d_c;
-    
+
     std::vector<float> a(number);
     std::vector<float> b(number);
     std::vector<float> c(number);
@@ -71,17 +71,45 @@ int main(int argc, char **argv)
     std::generate(b.begin(), b.end(), rand);
 
     try {
+
         cl::Platform::get(&platforms);
         if (!platforms.size())
             throw std::exception();
 
+        cl::Platform plat;
+        for (auto &p : platforms) {
+            std::string platver = p.getInfo<CL_PLATFORM_VERSION>();
+            std::cout << "Platform: " << platver << std::endl;
+            if (platver.find("OpenCL 2.") != std::string::npos) {
+                plat = p;
+            }
+        }
+        if (plat() == 0)  {
+            std::cout << "No OpenCL 2.0 platform found." << std::endl;
+        }
+
         cl::Platform& platform = platforms[0];
+
+        //get default device of the default platform
+        std::vector<cl::Device> all_devices;
+        platform.getDevices(CL_DEVICE_TYPE_ALL, &all_devices);
+        if(all_devices.size()==0){
+            std::cout<<" No devices found. Check OpenCL installation!\n";
+            throw std::exception();
+        }
+        for (auto &p : all_devices) {
+            std::string dev_name = p.getInfo<CL_DEVICE_NAME>();
+            std::string vendor = p.getInfo<CL_DEVICE_VENDOR>();
+            std::string version = p.getInfo<CL_DEVICE_VERSION>();
+            std::cout << "Device Name: " <<dev_name << "\nVendor: " << vendor << "\nVersion: " << version << std::endl;
+        }
 
         platform.getDevices(CL_DEVICE_TYPE_GPU, &devices);
         if (!devices.size())
             throw std::exception();
 
         cl::Device& device = devices[0];
+        std::cout<< "Using device: "<<device.getInfo<CL_DEVICE_NAME>()<<"\n";
 
         context.reset(new cl::Context(device));
         queue.reset(new cl::CommandQueue(*context, device));
