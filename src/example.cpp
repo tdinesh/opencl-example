@@ -123,6 +123,10 @@ int main(int argc, char **argv)
                 *program,
                 "VecAdd"));
 
+        auto workGroupSize = kernel->getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device);
+
+        std::cout << "Max WorkItems in WorkGroup " << workGroupSize << std::endl;
+
         d_a.reset(new cl::Buffer(
                 *context,
                 CL_MEM_READ_WRITE,
