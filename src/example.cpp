@@ -111,6 +111,21 @@ int main(int argc, char **argv)
         cl::Device& device = devices[0];
         std::cout<< "Using device: "<<device.getInfo<CL_DEVICE_NAME>()<<"\n";
 
+        //std::cout<< "Highest OpenCL Supported: "<<device.getInfo<CL_DEVICE_OPENCL_C_VERSION>()<<"\n";
+
+        std::cout<< "Global Mem(KB): "<<device.getInfo<CL_DEVICE_GLOBAL_MEM_SIZE>()/1000<<"\n";
+        std::cout<< "Local Mem(KB): "<<device.getInfo<CL_DEVICE_LOCAL_MEM_SIZE>()/1000<<"\n";
+        std::cout<< "Max Const Buffer Size(KB): "<<device.getInfo<CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE>()/1000<<"\n";
+
+        std::cout<< "Max Compute Units: "<<device.getInfo<CL_DEVICE_MAX_COMPUTE_UNITS>()<<"\n";
+
+        std::cout<< "Max WorkGroup Size: "<<device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>()<<"\n";
+        std::cout<< "Max WorkItem  Dims: "<<device.getInfo<CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS>()<<"\n";
+
+        auto sz = device.getInfo<CL_DEVICE_MAX_WORK_ITEM_SIZES>();
+        for(const auto s : sz)
+          std::cout<< "Max WorkItem  Sizes in each Dim: "<<s<<"\n";
+
         context.reset(new cl::Context(device));
         queue.reset(new cl::CommandQueue(*context, device));
 
@@ -124,8 +139,10 @@ int main(int argc, char **argv)
                 "VecAdd"));
 
         auto workGroupSize = kernel->getWorkGroupInfo<CL_KERNEL_WORK_GROUP_SIZE>(device);
-
         std::cout << "Max WorkItems in WorkGroup " << workGroupSize << std::endl;
+
+        auto localMemSize = kernel->getWorkGroupInfo<CL_KERNEL_LOCAL_MEM_SIZE>(device);
+        std::cout << "Local Mem in WorkGroup " << localMemSize << std::endl;
 
         d_a.reset(new cl::Buffer(
                 *context,
