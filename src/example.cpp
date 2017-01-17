@@ -80,6 +80,20 @@ int main(int argc, char **argv)
         for (auto &p : platforms) {
             std::string platver = p.getInfo<CL_PLATFORM_VERSION>();
             std::cout << "Platform: " << platver << std::endl;
+
+            std::vector<cl::Device> all_devices;
+            p.getDevices(CL_DEVICE_TYPE_ALL, &all_devices);
+            if(all_devices.size()==0){
+                std::cout<<" No devices found. Check OpenCL installation!\n";
+                throw std::exception();
+            }
+            for (auto &p : all_devices) {
+                std::string dev_name = p.getInfo<CL_DEVICE_NAME>();
+                std::string vendor = p.getInfo<CL_DEVICE_VENDOR>();
+                std::string version = p.getInfo<CL_DEVICE_VERSION>();
+                std::cout << "Device Name: " <<dev_name << "\nVendor: " << vendor << "\nVersion: " << version << "\nType: " << p.getInfo<CL_DEVICE_TYPE>() << std::endl;
+            }
+
             if (platver.find("OpenCL 2.") != std::string::npos) {
                 plat = p;
             }
@@ -91,18 +105,6 @@ int main(int argc, char **argv)
         cl::Platform& platform = platforms[0];
 
         //get default device of the default platform
-        std::vector<cl::Device> all_devices;
-        platform.getDevices(CL_DEVICE_TYPE_ALL, &all_devices);
-        if(all_devices.size()==0){
-            std::cout<<" No devices found. Check OpenCL installation!\n";
-            throw std::exception();
-        }
-        for (auto &p : all_devices) {
-            std::string dev_name = p.getInfo<CL_DEVICE_NAME>();
-            std::string vendor = p.getInfo<CL_DEVICE_VENDOR>();
-            std::string version = p.getInfo<CL_DEVICE_VERSION>();
-            std::cout << "Device Name: " <<dev_name << "\nVendor: " << vendor << "\nVersion: " << version << std::endl;
-        }
 
         platform.getDevices(CL_DEVICE_TYPE_GPU, &devices);
         if (!devices.size())
