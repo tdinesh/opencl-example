@@ -119,6 +119,9 @@ int main(int argc, char **argv)
         std::cout<< "Local Mem(KB): "<<device.getInfo<CL_DEVICE_LOCAL_MEM_SIZE>()/1000<<"\n";
         std::cout<< "Max Const Buffer Size(KB): "<<device.getInfo<CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE>()/1000<<"\n";
 
+        std::cout<< "Max Memory Allocation: "<<device.getInfo<CL_DEVICE_MAX_MEM_ALLOC_SIZE>()/1000<<"\n";
+        std::cout<< "Host Unified Memory: "<<device.getInfo<CL_DEVICE_HOST_UNIFIED_MEMORY>()<<"\n";
+
         std::cout<< "Max Compute Units: "<<device.getInfo<CL_DEVICE_MAX_COMPUTE_UNITS>()<<"\n";
 
         std::cout<< "Max WorkGroup Size: "<<device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>()<<"\n";
